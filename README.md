@@ -1,94 +1,131 @@
 # Secure Notes API
 
-A simple RESTful API built with **FastAPI**, **PostgreSQL**, and **Redis**. Features user authentication (JWT), CRUD operations for notes, caching, and rate-limiting-ready structure.
+A secure RESTful API for managing personal notes, built with **FastAPI**, **PostgreSQL**, and **Redis**. Features JWT authentication, Redis caching, and Docker deployment.
+
+## Live Demo
+
+**API Base URL:** https://secure-notes-api-lolr.onrender.com  
+**Interactive Docs (Swagger UI):** https://secure-notes-api-lolr.onrender.com/docs
 
 ## Features
 
 - User registration & login with bcrypt-hashed passwords
-- JWT token authentication
+- JWT token authentication (24-hour expiry)
 - CRUD operations for personal notes
 - Redis caching for note lists and individual notes
-- Cache invalidation on create/update/delete
-- Input validation with Pydantic
+- Automatic cache invalidation on create/update/delete
+- Pydantic input validation
 - PostgreSQL for persistent storage
+- Docker containerization
+- Deployed on Render
 
 ## Tech Stack
 
-- Python 3.10+
-- FastAPI
-- SQLAlchemy + PostgreSQL
-- Redis
-- Pydantic
-- Passlib (bcrypt)
-- python-jose (JWT)
+| Layer | Technology |
+|-------|-----------|
+| Framework | FastAPI |
+| Database | PostgreSQL |
+| Cache | Redis |
+| Auth | JWT + bcrypt |
+| Validation | Pydantic |
+| Container | Docker |
+| Deployment | Render |
+
+## API Endpoints
+
+| Method | Endpoint | Auth Required | Description |
+|--------|----------|---------------|-------------|
+| POST | `/auth/register` | No | Create new account |
+| POST | `/auth/login` | No | Login, get JWT token |
+| POST | `/notes/` | Yes | Create a note |
+| GET | `/notes/` | Yes | List all your notes |
+| GET | `/notes/{id}` | Yes | Get a single note |
+| PUT | `/notes/{id}` | Yes | Update a note |
+| DELETE | `/notes/{id}` | Yes | Delete a note |
 
 ## Local Setup
 
-### 1. Clone & Enter Directory
+### Prerequisites
+- Python 3.11+
+- PostgreSQL
+- Redis
+
+### 1. Clone & Setup
 
 ```bash
+git clone https://github.com/Ayush09X/secure-notes-api.git
 cd secure-notes-api
-```
-
-### 2. Create Virtual Environment
-
-```bash
 python -m venv venv
-source venv/bin/activate   # Linux/Mac
+source venv/bin/activate  # Linux/Mac
 # OR
-venv\Scripts\activate    # Windows
-```
-
-### 3. Install Dependencies
-
-```bash
+venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 ```
 
-### 4. Start PostgreSQL & Redis
+### 2. Set Environment Variables
 
-Make sure PostgreSQL and Redis are running locally.
+Create a `.env` file:
 
-Create a database:
-```bash
-psql -U postgres -c "CREATE DATABASE securenotes;"
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/securenotes
+REDIS_URL=redis://localhost:6379/0
+SECRET_KEY=your-secret-key-here
 ```
 
-### 5. Set Environment Variables
-
-```bash
-cp .env.example .env
-# Edit .env with your actual DB and Redis URLs
-```
-
-### 6. Run the App
+### 3. Run
 
 ```bash
 uvicorn main:app --reload
 ```
 
-API will be at: `http://localhost:8000`
-
+API will be at: `http://localhost:8000`  
 Docs at: `http://localhost:8000/docs`
 
-## API Endpoints
+## Testing with Swagger UI
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/auth/register` | Register new user |
-| POST | `/auth/login` | Login, get JWT token |
-| POST | `/notes/` | Create a note (auth required) |
-| GET | `/notes/` | List all your notes (auth required) |
-| GET | `/notes/{id}` | Get a single note (auth required) |
-| PUT | `/notes/{id}` | Update a note (auth required) |
-| DELETE | `/notes/{id}` | Delete a note (auth required) |
+1. Go to `/docs`
+2. **Register** a user via `POST /auth/register`
+3. **Login** via `POST /auth/login` → copy the `access_token`
+4. Click **Authorize** (green button) → paste `Bearer YOUR_TOKEN`
+5. Test note CRUD operations
 
-## Testing
+## Docker
+
+Build and run locally:
 
 ```bash
-pytest
+docker build -t secure-notes-api .
+docker run -p 10000:10000 --env-file .env secure-notes-api
 ```
 
-## Deployment on Render (Free)
+## Deployment
 
-See `DEPLOY.md` for step-by-step Render deployment instructions.
+Deployed on Render using Docker with:
+- Render PostgreSQL (managed database)
+- Render Key Value (Redis)
+- Render Web Service (Docker runtime)
+
+## Project Structure
+
+```
+secure-notes-api/
+├── main.py              # FastAPI app entry point
+├── database.py          # PostgreSQL connection
+├── cache.py             # Redis helper functions
+├── models.py            # SQLAlchemy models
+├── schemas.py           # Pydantic validation
+├── auth_utils.py        # Password hashing & JWT
+├── routers/
+│   ├── auth.py          # Auth endpoints
+│   └── notes.py         # Notes endpoints
+├── tests/
+│   └── test_api.py      # Basic tests
+├── Dockerfile           # Docker config
+├── requirements.txt     # Dependencies
+└── README.md            # This file
+```
+
+## Author
+
+**Ayush Singh**  
+[LinkedIn](https://linkedin.com/in/ayush-singh-215526204) | [GitHub](https://github.com/Ayush09X)
